@@ -116,7 +116,7 @@ def main():
         if score < 0:
             end_game("Você pegou candidíase.")  # Mensagem de game over
             break
-        elif score > 10:
+        elif score > 500:
             end_game("Parabéns! Boa saúde!", victory=True)  # Mensagem de vitória
             break
         
