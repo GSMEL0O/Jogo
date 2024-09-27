@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minigame: Prevenção à Candidíase</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid #000;
+            background: url('background.png'); /* Substitua pela sua imagem de fundo */
+            background-size: cover;
+            display: none; /* Esconde o canvas inicialmente */
+        }
+        #buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        #message {
+            font-size: 30px;
+            color: red;
+            display: none; /* Esconde a mensagem inicialmente */
+        }
+    </style>
+</head>
+<body>
+    <div id="buttons">
+        <button id="startButton">Jogar</button>
+        <button id="stopButton" style="display: none;">Terminar</button>
+    </div>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div id="message"></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const messageDiv = document.getElementById('message');
+
+        // Adicionando fonte para instruções
+        ctx.font = '16px Arial';
+        ctx.fillStyle = 'black';
+
+        const playerImg = new Image();
+        playerImg.src = 'player.png'; // Imagem do jogador
+        const goodItemsImgs = {
+            leite: 'leite.png', // Imagem do leite
+            agua: 'agua.png', // Imagem da água
+            frutas: 'frutas.png' // Imagem das frutas
+        };
+        const badItemsImgs = {
+            acucar: 'acucar.png', // Imagem do açúcar
+            doces: 'doces.png' // Imagem dos doces
+        };
+        const WIDTH = 400;
+        const HEIGHT = 600;
+
+        let player = { 
+            x: WIDTH / 2 - 32, // Centraliza o jogador com largura 64
+            y: HEIGHT - 64 - 10, // Ajusta a posição na parte inferior
+            width: 64, // Largura do jogador
+            height: 64, // Altura do jogador
+            speed: 5 
+        };
+        let goodItems = [];
+        let badItems = [];
+        let score = 0;
+        let gameOver = false;
+
+        function initGame() {
+            goodItems = [];
+            badItems = [];
+            score = 0;
+            gameOver = false;
+            messageDiv.style.display = 'none';
+            canvas.style.display = 'block';
+            startGameLoop();
+        }
+
+        function spawnItems() {
+            if (Math.random() < 0.05) { // 5% de chance de gerar um item saudável
+                goodItems.push({
+                    img: goodItemsImgs[Object.keys(goodItemsImgs)[Math.floor(Math.random() * 3)]],
+                    x: Math.random() * (WIDTH - 32),
+                    y: -30,
+                    speed: 3,
+                    width: 32,
+                    height: 32
+                });
+            }
+            if (Math.random() < 0.03) { // 3% de chance de gerar um item prejudicial
+                badItems.push({
+                    img: badItemsImgs[Object.keys(badItemsImgs)[Math.floor(Math.random() * 2)]],
+                    x: Math.random() * (WIDTH - 32),
+                    y: -30,
+                    speed: 5,
+                    width: 32,
+                    height: 32
+                });
+            }
+        }
+
+        function drawInstructions() {
+            // Desenha as instruções no topo do canvas
+            ctx.fillText('Coletar: Leite, Água, Frutas (Saudável)', 10, 20);
+            ctx.fillText('Evitar: Açúcar, Doces (Prejudicial)', 10, 40);
+        }
+
+        function drawPlayer() {
+            ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+        }
+
+        function drawItems(items) {
+            items.forEach(item => {
+                const img = new Image();
+                img.src = item.img;
+                ctx.drawImage(img, item.x, item.y, item.width, item.height);
+            });
+        }
+
+        function updateItems(items) {
+            items.forEach((item, index) => {
+                item.y += item.speed;
+                // Verifica se o item saiu da tela
+                if (item.y > HEIGHT) {
+                    items.splice(index, 1); // Remove o item que saiu da tela
+                }
+            });
+        }
+
+        function detectCollisions() {
+            goodItems.forEach((goodItem, index) => {
+                if (goodItem.y + goodItem.height > player.y && 
+                    goodItem.x < player.x + player.width && 
+                    goodItem.x + goodItem.width > player.x) {
+                    goodItems.splice(index, 1); // Remove item bom
+                    score += 5; // Aumenta a pontuação
+                    console.log(`Pontos: ${score}`);
+                }
+            });
+
+            badItems.forEach((badItem, index) => {
+                if (badItem.y + badItem.height > player.y && 
+                    badItem.x < player.x + player.width && 
+                    badItem.x + badItem.width > player.x) {
+                    badItems.splice(index, 1); // Remove item ruim
+                    score -= 10; // Diminui a pontuação
+                    console.log(`Pontos: ${score}`);
+                }
+            });
+        }
+
+        function startGameLoop() {
+            if (gameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa a tela
+            drawInstructions(); // Desenha as instruções
+            drawPlayer();
+            drawItems(goodItems);
+            drawItems(badItems);
+
+            updateItems(goodItems);
+            updateItems(badItems);
+            detectCollisions();
+
+            // Exibe a pontuação
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Saúde: ${score}`, 10, 60); // Ajusta a posição da pontuação
+
+            if (score < 0) {
+                gameOver = true;
+                displayMessage("Você pegou candidíase.");
+            } else if (score > 80) {
+                gameOver = true;
+                displayMessage("Parabéns! Sua saúde está ótima!");
+            }
+
+            requestAnimationFrame(startGameLoop);
+        }
+
+        function displayMessage(message) {
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            canvas.style.display = 'none'; // Esconde o canvas
+            stopButton.style.display = 'none'; // Esconde o botão de parar
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (!gameOver) {
+                if (event.key === 'ArrowLeft') {
+                    player.x -= player.speed;
+                    if (player.x < 0) player.x = 0; // Limita a posição
+                }
+                if (event.key === 'ArrowRight') {
+                    player.x += player.speed;
+                    if (player.x + player.width > WIDTH) player.x = WIDTH - player.width; // Limita a posição
+                }
+            }
+        });
+
+        startButton.addEventListener('click', () => {
+            initGame();
+            startButton.style.display = 'none'; // Esconde o botão de jogar
+            stopButton.style.display = 'block'; // Mostra o botão de parar
+        });
+
+        stopButton.addEventListener('click', () => {
+            gameOver = true;
+            displayMessage("Você parou o jogo.");
+            stopButton.style.display = 'none'; // Esconde o botão de parar
+        });
+
+        // Gera itens continuamente
+        setInterval(spawnItems, 100); // Chama spawnItems a cada 100ms
+    </script>
+</body>
+</html>
