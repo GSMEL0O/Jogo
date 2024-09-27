@@ -1,0 +1,100 @@
+/* Estilos Gerais */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #e3f2fd; /* Azul claro */
+}
+
+header {
+    background-color: #1976d2; /* Azul escuro */
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background-color: #1565c0; /* Azul intermediário */
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 15px 0;
+    display: block;
+}
+
+nav ul li a:hover {
+    border-bottom: 2px solid #ffca28; /* Destaque amarelo ao passar o mouse */
+}
+
+main {
+    padding: 20px;
+}
+
+section {
+    margin-bottom: 50px;
+}
+
+section h2 {
+    color: #0d47a1; /* Azul ainda mais escuro */
+}
+
+footer {
+    background-color: #1976d2;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Canvas do jogo */
+#gameCanvas {
+    border: 2px solid #0d47a1;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Estilos para links âncora */
+a {
+    color: #1976d2;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+#quiz-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+#quiz-options button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#quiz-options button:hover {
+    background-color: #1565c0;
+}
+
+#quiz-result {
+    margin-top: 20px;
+    font-weight: bold;
+}
